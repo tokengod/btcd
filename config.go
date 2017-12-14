@@ -903,13 +903,15 @@ func loadConfig() (*config, []string, error) {
 	// Only allow TLS to be disabled if the RPC is bound to localhost
 	// addresses.
 	if !cfg.DisableRPC && cfg.DisableTLS {
-		allowedTLSListeners := map[string]struct{}{
-			"localhost": {},
-			"127.0.0.1": {},
-			"::1":       {},
-		}
+		/*
+			allowedTLSListeners := map[string]struct{}{
+				"localhost": {},
+				"127.0.0.1": {},
+				"::1":       {},
+			}
+		*/
 		for _, addr := range cfg.RPCListeners {
-			host, _, err := net.SplitHostPort(addr)
+			_, _, err := net.SplitHostPort(addr)
 			if err != nil {
 				str := "%s: RPC listen interface '%s' is " +
 					"invalid: %v"
@@ -918,6 +920,7 @@ func loadConfig() (*config, []string, error) {
 				fmt.Fprintln(os.Stderr, usageMessage)
 				return nil, nil, err
 			}
+			/* ben enable no tls test
 			if _, ok := allowedTLSListeners[host]; !ok {
 				str := "%s: the --notls option may not be used " +
 					"when binding RPC to non localhost " +
@@ -927,6 +930,7 @@ func loadConfig() (*config, []string, error) {
 				fmt.Fprintln(os.Stderr, usageMessage)
 				return nil, nil, err
 			}
+			*/
 		}
 	}
 

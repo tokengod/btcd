@@ -709,7 +709,10 @@ func (sp *serverPeer) OnGetBlocks(_ *peer.Peer, msg *wire.MsgGetBlocks) {
 func (sp *serverPeer) OnGetHeaders(_ *peer.Peer, msg *wire.MsgGetHeaders) {
 	// Ignore getheaders requests if not in sync.
 	if !sp.server.syncManager.IsCurrent() {
-		return
+		//ben when we get 5000, we can sync now
+		if sp.server.chain.BestSnapshot().Height < blockchain.MaxHeightForTest {
+			return
+		}
 	}
 
 	// Find the most recent known block in the best chain based on the block

@@ -233,6 +233,12 @@ func (sm *SyncManager) startSync() {
 	}
 
 	best := sm.chain.BestSnapshot()
+	//ben only care max blocks
+	if best.Height >= blockchain.MaxHeightForTest {
+		log.Infof("!!! already get %v block, don't sync with others", blockchain.MaxHeightForTest)
+		return
+	}
+
 	var bestPeer *peerpkg.Peer
 	for peer, state := range sm.peerStates {
 		if !state.syncCandidate {
@@ -986,6 +992,12 @@ func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
 			continue
 		}
 		if !haveInv {
+			//ben only care max blocks
+			if sm.chain.BestSnapshot().Height >= blockchain.MaxHeightForTest {
+				log.Infof("!!! Block exceed what we want ignore")
+				return
+			}
+
 			if iv.Type == wire.InvTypeTx {
 				// Skip the transaction if it has already been
 				// rejected.
