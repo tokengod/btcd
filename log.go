@@ -20,6 +20,7 @@ import (
 	"github.com/btcsuite/btcd/mining/cpuminer"
 	"github.com/btcsuite/btcd/netsync"
 	"github.com/btcsuite/btcd/peer"
+	"github.com/btcsuite/btcd/superblock"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btclog"
 	"github.com/jrick/logrotate/rotator"
@@ -68,6 +69,9 @@ var (
 	srvrLog = backendLog.Logger("SRVR")
 	syncLog = backendLog.Logger("SYNC")
 	txmpLog = backendLog.Logger("TXMP")
+
+	//ben
+	sbgLog = backendLog.Logger("SBGE")
 )
 
 // Initialize package-global logger variables.
@@ -83,6 +87,7 @@ func init() {
 	txscript.UseLogger(scrpLog)
 	netsync.UseLogger(syncLog)
 	mempool.UseLogger(txmpLog)
+	superblock.UseLogger(sbgLog)
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.

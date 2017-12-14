@@ -34,6 +34,7 @@ import (
 	"github.com/btcsuite/btcd/mining/cpuminer"
 	"github.com/btcsuite/btcd/netsync"
 	"github.com/btcsuite/btcd/peer"
+	"github.com/btcsuite/btcd/superblock"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -221,6 +222,9 @@ type server struct {
 	db                   database.DB
 	timeSource           blockchain.MedianTimeSource
 	services             wire.ServiceFlag
+
+	//ben
+	superBlockGenerator *superblock.SuperBlockGenerator
 
 	// The following fields are used for optional indexes.  They will be nil
 	// if the associated index is not enabled.  These fields are set during
@@ -710,7 +714,7 @@ func (sp *serverPeer) OnGetHeaders(_ *peer.Peer, msg *wire.MsgGetHeaders) {
 	// Ignore getheaders requests if not in sync.
 	if !sp.server.syncManager.IsCurrent() {
 		//ben when we get 5000, we can sync now
-		if sp.server.chain.BestSnapshot().Height < blockchain.MaxHeightForTest {
+		if sp.server.chain.BestSnapshot().Height < blockchain.LastPowBlockHeight {
 			return
 		}
 	}
@@ -2251,6 +2255,9 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 	if err != nil {
 		return nil, err
 	}
+
+	//ben
+	s.superBlockGenerator = superblock.New(s.chain, s.timeSource)
 
 	txC := mempool.Config{
 		Policy: mempool.Policy{

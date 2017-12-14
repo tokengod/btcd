@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	MaxHeightForTest = 11111
+	LastPowBlockHeight = 100
 	// maxOrphanBlocks is the maximum number of orphan blocks that can be
 	// queued.
 	maxOrphanBlocks = 100

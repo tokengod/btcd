@@ -234,8 +234,8 @@ func (sm *SyncManager) startSync() {
 
 	best := sm.chain.BestSnapshot()
 	//ben only care max blocks
-	if best.Height >= blockchain.MaxHeightForTest {
-		log.Infof("!!! already get %v block, don't sync with others", blockchain.MaxHeightForTest)
+	if best.Height >= blockchain.LastPowBlockHeight {
+		log.Infof("!!! already get %v block, don't sync with others", blockchain.LastPowBlockHeight)
 		return
 	}
 
@@ -993,7 +993,7 @@ func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
 		}
 		if !haveInv {
 			//ben only care max blocks
-			if sm.chain.BestSnapshot().Height >= blockchain.MaxHeightForTest {
+			if sm.chain.BestSnapshot().Height >= blockchain.LastPowBlockHeight {
 				log.Infof("!!! Block exceed what we want ignore")
 				return
 			}
