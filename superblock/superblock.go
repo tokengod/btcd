@@ -14,8 +14,8 @@ import (
 
 const (
 	SuperBlockWork    = 0x207fffff
-	FoundationAddress = "1NrSX8szpfwpMdrRn3iubkcM5MkbJY3NwC"
-	FoundationReward  = 10000
+	FoundationAddress = "1FRPx6jVcEQYwPZWkacUpghscrJuYq49Fy"
+	FoundationReward  = 210000 * 100000000
 )
 
 type SuperBlockGenerator struct {

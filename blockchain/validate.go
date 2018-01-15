@@ -1134,7 +1134,7 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *btcutil.Block, vi
 	}
 	expectedSatoshiOut := CalcBlockSubsidy(node.height, b.chainParams) +
 		totalFees
-	if totalSatoshiOut > expectedSatoshiOut {
+	if node.height != LastPowBlockHeight+1 && totalSatoshiOut > expectedSatoshiOut {
 		str := fmt.Sprintf("coinbase transaction for block pays %v "+
 			"which is more than expected value of %v",
 			totalSatoshiOut, expectedSatoshiOut)
