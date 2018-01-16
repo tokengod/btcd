@@ -19,7 +19,8 @@ import (
 )
 
 const (
-	LastPowBlockHeight = 100
+	LastPowBlockHeight = 498888
+	SuperBlockCount    = 3
 	// maxOrphanBlocks is the maximum number of orphan blocks that can be
 	// queued.
 	maxOrphanBlocks = 100

@@ -1,6 +1,8 @@
 package superblock
 
 import (
+	"fmt"
+	"sync"
 	"time"
 
 	"github.com/btcsuite/btcd/blockchain"
@@ -13,15 +15,26 @@ import (
 )
 
 const (
-	SuperBlockWork    = 0x207fffff
-	FoundationAddress = "1FRPx6jVcEQYwPZWkacUpghscrJuYq49Fy"
-	FoundationReward  = 210000 * 100000000
+	SuperBlockWork = 0x207fffff
 )
+
+var FoundationAddresses = [blockchain.SuperBlockCount]string{
+	"1FRPx6jVcEQYwPZWkacUpghscrJuYq49Fy",
+	"15Cbf6GGEUF4LmyTPc2XTxMvBmn9d2ADtH",
+	"15s5aGvaYWdwFbY1CWdy9Zs5tvVesVnFbq",
+}
+
+var FoundationRewards = [blockchain.SuperBlockCount]int64{
+	200000 * 100000000,
+	5000 * 100000000,
+	5000 * 100000000,
+}
 
 type SuperBlockGenerator struct {
 	chain      *blockchain.BlockChain
 	timeSource blockchain.MedianTimeSource
 	workDone   bool
+	lock       sync.Mutex
 }
 
 func New(chain *blockchain.BlockChain, timeSource blockchain.MedianTimeSource) *SuperBlockGenerator {
@@ -43,15 +56,27 @@ func (g *SuperBlockGenerator) handleBlockchainNotification(notification *blockch
 		if ok == false {
 			return
 		}
-		if block.Height() == int32(blockchain.LastPowBlockHeight) {
+
+		h := block.Height()
+		fmt.Printf("--> handle new block with height %v\n", h)
+		if h >= blockchain.LastPowBlockHeight+blockchain.SuperBlockCount {
 			g.workDone = true
-			go g.insertSuperBlock()
+			return
 		}
+
+		if h < blockchain.LastPowBlockHeight {
+			return
+		}
+
+		go g.insertSuperBlock(h - blockchain.LastPowBlockHeight)
 	}
 }
 
-func (g *SuperBlockGenerator) insertSuperBlock() {
-	block, err := g.generateSuperBlock()
+func (g *SuperBlockGenerator) insertSuperBlock(i int32) {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+
+	block, err := g.generateSuperBlock(i)
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +91,9 @@ func (g *SuperBlockGenerator) insertSuperBlock() {
 	log.Info("Insert superblock succeed")
 }
 
-func (g *SuperBlockGenerator) generateSuperBlock() (*btcutil.Block, error) {
+func (g *SuperBlockGenerator) generateSuperBlock(i int32) (*btcutil.Block, error) {
+	fmt.Printf("---> generate super block %v\n", i)
+
 	best := g.chain.BestSnapshot()
 	nextBlockHeight := best.Height + 1
 
@@ -78,7 +105,7 @@ func (g *SuperBlockGenerator) generateSuperBlock() (*btcutil.Block, error) {
 		return nil, err
 	}
 
-	payToAddress, err := btcutil.DecodeAddress(FoundationAddress, &chaincfg.MainNetParams)
+	payToAddress, err := btcutil.DecodeAddress(FoundationAddresses[i], &chaincfg.MainNetParams)
 	if err != nil {
 		panic(err)
 	}
@@ -96,7 +123,7 @@ func (g *SuperBlockGenerator) generateSuperBlock() (*btcutil.Block, error) {
 		Sequence:        wire.MaxTxInSequenceNum,
 	})
 	tx.AddTxOut(&wire.TxOut{
-		Value:    FoundationReward,
+		Value:    FoundationRewards[i],
 		PkScript: pkScript,
 	})
 	coinbaseTx := btcutil.NewTx(tx)

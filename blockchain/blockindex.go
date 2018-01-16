@@ -150,6 +150,10 @@ func (node *blockNode) Header() wire.BlockHeader {
 	}
 }
 
+func (node *blockNode) IsSuper() bool {
+	return node.height > LastPowBlockHeight && node.height <= LastPowBlockHeight+SuperBlockCount
+}
+
 // Ancestor returns the ancestor block node at the provided height by following
 // the chain backwards from this node.  The returned block will be nil when a
 // height is requested that is after the height of the passed node or is less
