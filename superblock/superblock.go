@@ -1,7 +1,6 @@
 package superblock
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -58,7 +57,6 @@ func (g *SuperBlockGenerator) handleBlockchainNotification(notification *blockch
 		}
 
 		h := block.Height()
-		fmt.Printf("--> handle new block with height %v\n", h)
 		if h >= blockchain.LastPowBlockHeight+blockchain.SuperBlockCount {
 			g.workDone = true
 			return
@@ -92,8 +90,6 @@ func (g *SuperBlockGenerator) insertSuperBlock(i int32) {
 }
 
 func (g *SuperBlockGenerator) generateSuperBlock(i int32) (*btcutil.Block, error) {
-	fmt.Printf("---> generate super block %v\n", i)
-
 	best := g.chain.BestSnapshot()
 	nextBlockHeight := best.Height + 1
 
